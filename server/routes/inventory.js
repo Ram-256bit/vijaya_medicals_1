@@ -41,4 +41,15 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Get expired medicines
+router.get("/expired", async (req, res) => {
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    try {
+      const expired = await InventoryItem.find({ expiryDate: { $lt: today } });
+      res.json(expired);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch expired medicines" });
+    }
+  });
+  
 export default router;

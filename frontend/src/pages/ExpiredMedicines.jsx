@@ -1,29 +1,38 @@
-import { useState } from 'react'
+"use client"
+
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-// Mock data for expired medicines
-const mockExpiredMedicines = [
-  { id: 1, DrugName: 'Aspirin', batchId: 'A001', expiryDate: '2023-05-15', quantity: 100 },
-  { id: 2, DrugName: 'Ibuprofen', batchId: 'I002', expiryDate: '2023-06-20', quantity: 50 },
-  { id: 3, DrugName: 'Paracetamol', batchId: 'P003', expiryDate: '2023-07-10', quantity: 75 },
-  { id: 4, DrugName: 'Amoxicillin', batchId: 'AM004', expiryDate: '2023-08-05', quantity: 30 },
-  { id: 5, DrugName: 'Omeprazole', batchId: 'O005', expiryDate: '2023-09-01', quantity: 60 },
-]
-
 export default function ExpiredMedicines() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [expiredMedicines, setExpiredMedicines] = useState(mockExpiredMedicines)
+  const [expiredMedicines, setExpiredMedicines] = useState([])
+  const [filteredMedicines, setFilteredMedicines] = useState([])
+
+  useEffect(() => {
+    const fetchExpiredMedicines = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/inventory/expired")
+        const data = await response.json()
+        setExpiredMedicines(data)
+        setFilteredMedicines(data)
+      } catch (error) {
+        console.error("Failed to fetch expired medicines:", error)
+      }
+    }
+
+    fetchExpiredMedicines()
+  }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
-    const filteredMedicines = mockExpiredMedicines.filter(medicine => 
+    const filtered = expiredMedicines.filter(medicine =>
       medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       medicine.batchId.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    setExpiredMedicines(filteredMedicines)
+    setFilteredMedicines(filtered)
   }
 
   return (
@@ -58,9 +67,9 @@ export default function ExpiredMedicines() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {expiredMedicines.map((medicine) => (
-                <TableRow key={medicine.id}>
-                  <TableCell>{medicine.DrugName}</TableCell>
+              {filteredMedicines.map((medicine) => (
+                <TableRow key={medicine._id}>
+                  <TableCell>{medicine.name}</TableCell>
                   <TableCell>{medicine.batchId}</TableCell>
                   <TableCell>{medicine.expiryDate}</TableCell>
                   <TableCell>{medicine.quantity}</TableCell>
@@ -68,6 +77,9 @@ export default function ExpiredMedicines() {
               ))}
             </TableBody>
           </Table>
+          {filteredMedicines.length === 0 && (
+            <p className="text-sm text-gray-500 mt-4">No expired medicines found.</p>
+          )}
         </CardContent>
       </Card>
     </div>
