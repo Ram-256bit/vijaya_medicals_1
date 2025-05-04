@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -9,77 +9,10 @@ import { useToast } from "@/components/ui/use-toast"
 import { Search, ShoppingCart, Plus, Minus, Trash2, Printer, Save } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
-// Sample medicines data - in a real app, this would come from an API
-const medicinesData = [
-  {
-    id: 1,
-    name: "Panadol",
-    price: 120,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 500,
-    expireDate: "2024-12-31",
-  },
-  {
-    id: 2,
-    name: "Amoxicillin",
-    price: 250,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 200,
-    expireDate: "2024-06-30",
-  },
-  {
-    id: 3,
-    name: "Citazin",
-    price: 180,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 350,
-    expireDate: "2025-03-15",
-  },
-  {
-    id: 4,
-    name: "Omeprazole",
-    price: 300,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 150,
-    expireDate: "2024-09-30",
-  },
-  {
-    id: 5,
-    name: "Metformin",
-    price: 220,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 400,
-    expireDate: "2025-01-31",
-  },
-  {
-    id: 6,
-    name: "Diamicrozole",
-    price: 450,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 120,
-    expireDate: "2024-11-15",
-  },
-  {
-    id: 7,
-    name: "Omithrazole",
-    price: 280,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 180,
-    expireDate: "2024-10-20",
-  },
-  {
-    id: 8,
-    name: "Chloroperi Hybanate",
-    price: 520,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 90,
-    expireDate: "2025-02-28",
-  },
-]
-
+// Fetch medicines from the server
 export default function PointOfSale() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [medicines, setMedicines] = useState(medicinesData)
+  const [medicines, setMedicines] = useState([])
   const [cart, setCart] = useState([])
   const [tax, setTax] = useState(0)
   const [customerName, setCustomerName] = useState("")
@@ -87,17 +20,40 @@ export default function PointOfSale() {
   const { toast } = useToast()
   const navigate = useNavigate()
 
+  // Fetch medicines data from the backend when component mounts
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/inventory")
+        if (!response.ok) {
+          throw new Error(`Failed to fetch medicines, status: ${response.status}`)
+        }
+        const data = await response.json()
+        setMedicines(data)
+      } catch (err) {
+        console.error("Error fetching medicines:", err)
+        toast({
+          title: "Error",
+          description: "Failed to load medicines data.",
+          variant: "destructive",
+        })
+      }
+    }
+
+    fetchMedicines()
+  }, []) // Empty dependency array ensures this runs only once when the component mounts
+
   const filteredMedicines = medicines.filter((medicine) =>
     medicine.name.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   const addToCart = (medicine) => {
-    const existingItem = cart.find((item) => item.id === medicine.id)
+    const existingItem = cart.find((item) => item.id === medicine._id)
 
     if (existingItem) {
       setCart(
         cart.map((item) =>
-          item.id === medicine.id
+          item._id === medicine._id
             ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.price }
             : item,
         ),

@@ -17,7 +17,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 }).then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB connection error:", err));
 
-// ====== Mongoose Schema and Model ======
+// ====== Mongoose Schemas and Models ======
 const medicineSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
@@ -25,12 +25,31 @@ const medicineSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
   expireDate: { type: String, required: true } // store as YYYY-MM-DD
 });
-
 const Medicine = mongoose.model("Medicine", medicineSchema);
+
+const orderSchema = new mongoose.Schema({
+  customer: {
+    name: { type: String, required: true },
+    phone: { type: String }
+  },
+  items: [
+    {
+      name: String,
+      price: Number,
+      quantity: Number,
+      total: Number
+    }
+  ],
+  subtotal: Number,
+  tax: Number,
+  total: Number,
+  date: { type: Date, default: Date.now }
+});
+const Order = mongoose.model("Order", orderSchema);
 
 // ====== API Routes ======
 
-// Get all medicines
+// --- Medicines Inventory ---
 app.get("/api/inventory", async (req, res) => {
   try {
     const medicines = await Medicine.find();
@@ -40,11 +59,9 @@ app.get("/api/inventory", async (req, res) => {
   }
 });
 
-// Add a new medicine
 app.post("/api/inventory", async (req, res) => {
   try {
     const { name, price, image, quantity, expireDate } = req.body;
-
     if (!name || !price || !quantity || !expireDate) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -57,7 +74,6 @@ app.post("/api/inventory", async (req, res) => {
   }
 });
 
-// Update stock (quantity) of a medicine
 app.put("/api/inventory/:id", async (req, res) => {
   try {
     const { quantity } = req.body;
@@ -79,7 +95,6 @@ app.put("/api/inventory/:id", async (req, res) => {
   }
 });
 
-// Delete a medicine
 app.delete("/api/inventory/:id", async (req, res) => {
   try {
     const deleted = await Medicine.findByIdAndDelete(req.params.id);
@@ -90,7 +105,6 @@ app.delete("/api/inventory/:id", async (req, res) => {
   }
 });
 
-// Get expired medicines
 app.get("/api/inventory/expired", async (req, res) => {
   try {
     const today = new Date().toISOString().split("T")[0];
@@ -98,6 +112,28 @@ app.get("/api/inventory/expired", async (req, res) => {
     res.json(expired);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch expired medicines" });
+  }
+});
+
+// --- Orders ---
+app.post("/api/orders", async (req, res) => {
+  try {
+    const order = new Order(req.body);
+    await order.save();
+    res.status(201).json(order);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create order" });
+  }
+});
+
+// (Optional) Get all orders
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ date: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
 
