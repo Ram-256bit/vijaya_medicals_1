@@ -177,7 +177,7 @@ export default function PointOfSale() {
                     </div>
                     <CardContent className="p-3">
                       <h3 className="font-medium text-white text-center mb-1">{medicine.name}</h3>
-                      <p className="text-center text-gray-300 mb-2">${medicine.price.toFixed(2)}</p>
+                      <p className="text-center text-gray-300 mb-2">₹{medicine.price.toFixed(2)}</p>
                       <Button
                         onClick={() => addToCart(medicine)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white"
@@ -256,8 +256,8 @@ export default function PointOfSale() {
                               </Button>
                             </div>
                           </TableCell>
-                          <TableCell className="text-right text-gray-300">${item.price.toFixed(2)}</TableCell>
-                          <TableCell className="text-right text-white">${item.total.toFixed(2)}</TableCell>
+                          <TableCell className="text-right text-gray-300">₹{item.price.toFixed(2)}</TableCell>
+                          <TableCell className="text-right text-white">₹{item.total.toFixed(2)}</TableCell>
                           <TableCell>
                             <Button
                               variant="ghost"
@@ -276,7 +276,7 @@ export default function PointOfSale() {
                   <div className="mt-4 space-y-2">
                     <div className="flex justify-between text-gray-300">
                       <span>Subtotal:</span>
-                      <span>${calculateSubtotal().toFixed(2)}</span>
+                      <span>₹{calculateSubtotal().toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-300">Tax (%):</span>
@@ -289,7 +289,7 @@ export default function PointOfSale() {
                     </div>
                     <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-700">
                       <span className="text-white">Total:</span>
-                      <span className="text-white">${calculateTotal().toFixed(2)}</span>
+                      <span className="text-white">₹{calculateTotal().toFixed(2)}</span>
                     </div>
                   </div>
 

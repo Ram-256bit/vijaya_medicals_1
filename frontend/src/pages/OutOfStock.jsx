@@ -85,7 +85,7 @@ export default function OutOfStock() {
     // Show success toast
     toast({
       title: "Pre-order placed successfully",
-      description: `You have pre-ordered ${preOrderQuantity} units of ${selectedMedicine.drugName}.`,
+      description: `You have pre-ordered ₹{preOrderQuantity} units of ₹{selectedMedicine.drugName}.`,
     })
   }
 

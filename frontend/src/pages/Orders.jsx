@@ -186,7 +186,7 @@ export default function Orders() {
                       <TableCell className="text-gray-300">{order.customer.name}</TableCell>
                       <TableCell className="text-gray-300">{formatDate(order.date)}</TableCell>
                       <TableCell className="text-right text-gray-300">{order.items.length}</TableCell>
-                      <TableCell className="text-right font-medium text-white">${order.total.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-medium text-white">₹{order.total.toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge className="bg-green-600 text-white">{order.status}</Badge>
                       </TableCell>
@@ -236,13 +236,13 @@ export default function Orders() {
                 </div>
                 <div className="space-y-2 md:text-right">
                   <div className="text-gray-300">
-                    <span>Subtotal: ${selectedOrder.subtotal.toFixed(2)}</span>
+                    <span>Subtotal: ₹{selectedOrder.subtotal.toFixed(2)}</span>
                   </div>
                   <div className="text-gray-300">
-                    <span>Tax: ${selectedOrder.tax.toFixed(2)}</span>
+                    <span>Tax: ₹{selectedOrder.tax.toFixed(2)}</span>
                   </div>
                   <div className="text-xl font-bold text-white">
-                    <span>Total: ${selectedOrder.total.toFixed(2)}</span>
+                    <span>Total: ₹{selectedOrder.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -262,9 +262,9 @@ export default function Orders() {
                     {selectedOrder.items.map((item) => (
                       <TableRow key={item.id} className="border-gray-700">
                         <TableCell className="text-white">{item.name}</TableCell>
-                        <TableCell className="text-right text-gray-300">${item.price.toFixed(2)}</TableCell>
+                        <TableCell className="text-right text-gray-300">₹{item.price.toFixed(2)}</TableCell>
                         <TableCell className="text-right text-gray-300">{item.quantity}</TableCell>
-                        <TableCell className="text-right text-white">${item.total.toFixed(2)}</TableCell>
+                        <TableCell className="text-right text-white">₹{item.total.toFixed(2)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

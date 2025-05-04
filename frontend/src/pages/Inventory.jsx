@@ -198,7 +198,7 @@ export default function Inventory() {
                   <TableRow key={item._id}>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.quantity}</TableCell>
-                    <TableCell>${item.price.toFixed(2)}</TableCell>
+                    <TableCell>₹{item.price.toFixed(2)}</TableCell>
                     <TableCell>{item.expireDate}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
