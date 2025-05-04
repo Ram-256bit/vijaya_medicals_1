@@ -1,55 +1,74 @@
-
 import express from "express";
-import InventoryItem from "../models/InventoryItem.js";
+import Medicine from "../models/Medicine.js"; // Assuming you have a Medicine model now
 
 const router = express.Router();
 
-// Get all items
+// Get all medicines in inventory
 router.get("/", async (req, res) => {
-  const items = await InventoryItem.find();
-  res.json(items);
+  try {
+    const medicines = await Medicine.find();
+    res.json(medicines);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch medicines" });
+  }
 });
 
-// Add new item
+// Add new medicine to inventory
 router.post("/", async (req, res) => {
   try {
-    const item = new InventoryItem(req.body);
-    await item.save();
-    res.json(item);
+    const { name, price, image, quantity, expireDate } = req.body;
+
+    // Validate data
+    if (!name || !price || !quantity || !expireDate) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const newMedicine = new Medicine({ name, price, image, quantity, expireDate });
+    await newMedicine.save();
+    res.status(201).json(newMedicine);
   } catch (err) {
-    res.status(500).json({ error: "Failed to add item" });
+    res.status(500).json({ error: "Failed to add medicine" });
   }
 });
 
-// Update item
+// Update medicine stock (for inventory adjustments)
 router.put("/:id", async (req, res) => {
   try {
-    const updated = await InventoryItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
+    const { quantity } = req.body;
+    if (quantity !== undefined) {
+      const updatedMedicine = await Medicine.findByIdAndUpdate(
+        req.params.id,
+        { $set: { quantity } },
+        { new: true }
+      );
+      res.json(updatedMedicine);
+    } else {
+      res.status(400).json({ error: "Quantity is required to update stock" });
+    }
   } catch (err) {
-    res.status(500).json({ error: "Failed to update item" });
+    res.status(500).json({ error: "Failed to update medicine" });
   }
 });
 
-// Delete item
+// Delete medicine from inventory
 router.delete("/:id", async (req, res) => {
   try {
-    await InventoryItem.findByIdAndDelete(req.params.id);
-    res.json({ message: "Item deleted" });
+    await Medicine.findByIdAndDelete(req.params.id);
+    res.json({ message: "Medicine deleted" });
   } catch (err) {
-    res.status(500).json({ error: "Failed to delete item" });
+    res.status(500).json({ error: "Failed to delete medicine" });
   }
 });
 
-// Get expired medicines
+// Get expired medicines (based on expireDate field)
 router.get("/expired", async (req, res) => {
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    try {
-      const expired = await InventoryItem.find({ expiryDate: { $lt: today } });
-      res.json(expired);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch expired medicines" });
-    }
-  });
-  
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  try {
+    const expiredMedicines = await Medicine.find({ expireDate: { $lt: today } });
+    res.json(expiredMedicines);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch expired medicines" });
+  }
+});
+
 export default router;
