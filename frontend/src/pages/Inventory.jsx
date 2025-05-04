@@ -11,19 +11,11 @@ import { useToast } from "@/components/ui/use-toast"
 import { Edit, Trash2 } from "lucide-react"
 
 // Simulated API call to fetch inventory data
-const fetchInventory = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        { id: 1, name: "Paracetamol", batchId: "PCM001", quantity: 500, price: 5.99, expiryDate: "2024-12-31" },
-        { id: 2, name: "Amoxicillin", batchId: "AMX002", quantity: 200, price: 12.5, expiryDate: "2024-06-30" },
-        { id: 3, name: "Ibuprofen", batchId: "IBU003", quantity: 350, price: 7.25, expiryDate: "2025-03-15" },
-        { id: 4, name: "Omeprazole", batchId: "OMP004", quantity: 150, price: 15.75, expiryDate: "2024-09-30" },
-        { id: 5, name: "Metformin", batchId: "MET005", quantity: 400, price: 8.99, expiryDate: "2025-01-31" },
-      ])
-    }, 500)
-  })
-}
+const fetchInventory = async () => {
+  const res = await fetch("http://localhost:5000/api/inventory");
+  return await res.json();
+};
+
 
 export default function Inventory() {
   const [inventory, setInventory] = useState([])
@@ -44,73 +36,73 @@ export default function Inventory() {
       item.batchId.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (!newItem.name || !newItem.batchId || !newItem.quantity || !newItem.price || !newItem.expiryDate) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields.",
-        variant: "destructive",
+      toast({ title: "Error", description: "Please fill in all fields.", variant: "destructive" });
+      return;
+    }
+  
+    const response = await fetch("http://localhost:5000/api/inventory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...newItem,
+        quantity: Number(newItem.quantity),
+        price: Number(newItem.price)
       })
-      return
+    });
+  
+    if (response.ok) {
+      const added = await response.json();
+      setInventory([...inventory, added]);
+      setNewItem({ name: "", batchId: "", quantity: "", price: "", expiryDate: "" });
+      setIsAddDialogOpen(false);
+      toast({ title: "Success", description: "New item added." });
+    } else {
+      toast({ title: "Error", description: "Failed to add item.", variant: "destructive" });
     }
+  };
+  
 
-    const id = inventory.length + 1
-    const itemToAdd = {
-      id,
-      ...newItem,
-      quantity: Number.parseInt(newItem.quantity),
-      price: Number.parseFloat(newItem.price),
+  const handleEditItem = async () => {
+    if (!editingItem.name || !editingItem.batchId || !editingItem.quantity || !editingItem.price || !editingItem.expiryDate) {
+      toast({ title: "Error", description: "Please fill in all fields.", variant: "destructive" });
+      return;
     }
-    setInventory([...inventory, itemToAdd])
-    setNewItem({ name: "", batchId: "", quantity: "", price: "", expiryDate: "" })
-    setIsAddDialogOpen(false)
-    toast({
-      title: "Success",
-      description: "New item added to inventory.",
-    })
-  }
-
-  const handleEditItem = () => {
-    if (
-      !editingItem.name ||
-      !editingItem.batchId ||
-      !editingItem.quantity ||
-      !editingItem.price ||
-      !editingItem.expiryDate
-    ) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields.",
-        variant: "destructive",
+  
+    const response = await fetch(`http://localhost:5000/api/inventory/${editingItem._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...editingItem,
+        quantity: Number(editingItem.quantity),
+        price: Number(editingItem.price)
       })
-      return
+    });
+  
+    if (response.ok) {
+      const updatedItem = await response.json();
+      setInventory(inventory.map(item => item._id === updatedItem._id ? updatedItem : item));
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
+      toast({ title: "Success", description: "Item updated." });
+    } else {
+      toast({ title: "Error", description: "Failed to update item.", variant: "destructive" });
     }
+  };
+  
 
-    const updatedInventory = inventory.map((item) =>
-      item.id === editingItem.id
-        ? {
-            ...editingItem,
-            quantity: Number.parseInt(editingItem.quantity),
-            price: Number.parseFloat(editingItem.price),
-          }
-        : item,
-    )
-    setInventory(updatedInventory)
-    setIsEditDialogOpen(false)
-    setEditingItem(null)
-    toast({
-      title: "Success",
-      description: "Item updated successfully.",
-    })
-  }
-
-  const handleDeleteItem = (id) => {
-    setInventory(inventory.filter((item) => item.id !== id))
-    toast({
-      title: "Success",
-      description: "Item removed from inventory.",
-    })
-  }
+  const handleDeleteItem = async (id) => {
+    const res = await fetch(`http://localhost:5000/api/inventory/${id}`, { method: "DELETE" });
+  
+    if (res.ok) {
+      setInventory(inventory.filter((item) => item._id !== id));
+      toast({ title: "Success", description: "Item deleted." });
+    } else {
+      toast({ title: "Error", description: "Failed to delete item.", variant: "destructive" });
+    }
+  };
+  
 
   return (
     <div className="p-6">

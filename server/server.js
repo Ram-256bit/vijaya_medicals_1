@@ -16,6 +16,10 @@ mongoose.connect(process.env.MONGODB_URI, {
   .catch(err => console.error(err));
 
 app.use("/api", authRoutes);
+import inventoryRoutes from "./routes/inventory.js";
+app.use("/api/inventory", inventoryRoutes);
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
