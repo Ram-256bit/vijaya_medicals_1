@@ -79,7 +79,7 @@ export default function PointOfSale() {
     if (newQuantity < 1) return
 
     setCart(
-      cart.map((item) => (item.id === id ? { ...item, quantity: newQuantity, total: newQuantity * item.price } : item)),
+      cart.map((item) => (item._id === id ? { ...item, quantity: newQuantity, total: newQuantity * item.price } : item)),
     )
   }
 
@@ -241,7 +241,7 @@ export default function PointOfSale() {
                                 variant="outline"
                                 size="icon"
                                 className="h-6 w-6 bg-gray-700 border-gray-600 text-gray-300"
-                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                onClick={() => updateQuantity(item._id, item.quantity - 1)}
                               >
                                 <Minus className="h-3 w-3" />
                               </Button>
@@ -250,7 +250,7 @@ export default function PointOfSale() {
                                 variant="outline"
                                 size="icon"
                                 className="h-6 w-6 bg-gray-700 border-gray-600 text-gray-300"
-                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                onClick={() => updateQuantity(item._id, item.quantity + 1)}
                               >
                                 <Plus className="h-3 w-3" />
                               </Button>
