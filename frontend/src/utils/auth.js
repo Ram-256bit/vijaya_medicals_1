@@ -1,29 +1,51 @@
 const AUTH_TOKEN_KEY = "auth_token"
+const API_URL = "http://localhost:5000/api"
 
-export const login = (email, password) => {
-  // In a real app, you would validate credentials with a backend
-  if (email === "a@a.com" && password === "a") {
-    const token = "fake_jwt_token"
-    localStorage.setItem(AUTH_TOKEN_KEY, token)
-    return true
+export const login = async (email, password) => {
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    })
+    const data = await res.json()
+    if (res.ok) {
+      localStorage.setItem(AUTH_TOKEN_KEY, data.token)
+      return true
+    } else {
+      console.error(data.error)
+      return false
+    }
+  } catch (err) {
+    console.error("Login error:", err)
+    return false
   }
-  return false
+}
+
+export const signup = async (name, email, password) => {
+  try {
+    const res = await fetch(`${API_URL}/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password })
+    })
+    const data = await res.json()
+    if (res.ok) {
+      return true
+    } else {
+      console.error(data.error)
+      return false
+    }
+  } catch (err) {
+    console.error("Signup error:", err)
+    return false
+  }
 }
 
 export const logout = () => {
-  // Implement logout logic here, e.g., clearing local storage, cookies, etc.
   localStorage.removeItem(AUTH_TOKEN_KEY)
-  console.log("Logging out")
 }
 
 export const isAuthenticated = () => {
   return !!localStorage.getItem(AUTH_TOKEN_KEY)
-}
-
-// Add this new function
-export const signup = (name, email, password) => {
-  // In a real app, you would send this data to your backend
-  console.log("Signing up:", { name, email, password })
-  // For now, let's just simulate a successful signup
-  return true
 }
