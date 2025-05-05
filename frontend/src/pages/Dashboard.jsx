@@ -267,7 +267,7 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
               dashboardData.expiringMedicines.map((medicine) => (
                 <div key={medicine._id} className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600">
                   <p>Name: {medicine.name}</p>
-                  <p>Batch: {medicine.batchNumber}</p>
+                  {/* <p>Date: {medicine.expireDate}</p> */}
                 </div>
               ))
             ) : (
