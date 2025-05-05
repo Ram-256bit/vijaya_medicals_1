@@ -146,6 +146,48 @@ app.get("/api/orders", async (req, res) => {
   }
 });
 
+app.get("/api/dashboard", async (req, res) => {
+  try {
+    const today = new Date();
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+    // Get total number of medicines with discounts (sum of quantities where discount > 0)
+    const discountedMeds = await Medicine.find({ discount: { $gt: 0 } });
+    const totalDiscounts = discountedMeds.reduce((sum, med) => sum + med.quantity, 0);
+
+    // Get total number of expired medicines (sum of quantities where expireDate < today)
+    const expiredMeds = await Medicine.find({
+      expireDate: { $lt: today.toISOString().split("T")[0] }
+    });
+    const totalExpired = expiredMeds.reduce((sum, med) => sum + med.quantity, 0);
+
+    // Count refunded orders (e.g., total ≤ 0)
+    const totalRefunded = await Order.countDocuments({ total: { $lte: 0 } });
+
+    // Get medicines expiring in the next 30 days
+    const expiringSoon = await Medicine.find({
+      expireDate: {
+        $gte: today.toISOString().split("T")[0],
+        $lte: thirtyDaysFromNow.toISOString().split("T")[0]
+      }
+    }).select("name _id");
+
+    res.json({
+      totalDiscounts,
+      totalExpired,
+      totalRefunded,
+      expiringMedicines: expiringSoon.map(med => ({
+        name: med.name,
+        batchId: med._id
+      }))
+    });
+  } catch (err) {
+    console.error("Dashboard fetch error:", err);
+    res.status(500).json({ error: "Failed to fetch dashboard data" });
+  }
+});
+
 // ====== Start Server ======
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
