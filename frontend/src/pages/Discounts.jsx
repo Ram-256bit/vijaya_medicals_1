@@ -59,59 +59,83 @@ export default function Discounts() {
     fetchMedicines()
   }, [])
 
-  const handleApplyDiscount = () => {
+  const handleApplyDiscount = async () => {
     if (!selectedMedicine) {
-      return toast({
+      toast({
         title: "Error",
         description: "Please select a medicine first",
         variant: "destructive",
-      })
+      });
+      return;
     }
 
-    const amount = parseFloat(discountAmount)
-    if (isNaN(amount) || amount <= 0) {
-      return toast({
+    const amount = parseFloat(discountAmount);
+    if (isNaN(amount) || amount < 0) {
+      toast({
         title: "Error",
         description: "Please enter a valid discount amount",
         variant: "destructive",
-      })
+      });
+      return;
     }
 
-    const medicine = medicines.find(m => m.id === selectedMedicine)
-    if (!medicine) return
+    const medicine = medicines.find(m => m.id === selectedMedicine);
+    if (!medicine) return;
 
-    let newDiscountPrice
+    let discount;
     if (discountType === "percentage") {
       if (amount > 100) {
-        return toast({
+        toast({
           title: "Error",
           description: "Percentage discount cannot exceed 100%",
           variant: "destructive",
-        })
+        });
+        return;
       }
-      newDiscountPrice = medicine.price * (1 - amount / 100)
+      discount = Math.round(medicine.price * amount / 100);
     } else {
       if (amount >= medicine.price) {
-        return toast({
+        toast({
           title: "Error",
           description: "Fixed discount cannot exceed medicine price",
           variant: "destructive",
-        })
+        });
+        return;
       }
-      newDiscountPrice = medicine.price - amount
+      discount = Math.round(amount);
     }
 
-    setMedicines(medicines.map(m =>
-      m.id === selectedMedicine
-        ? { ...m, discountPrice: Math.round(newDiscountPrice) }
-        : m
-    ))
+    try {
+      const res = await fetch(`http://localhost:5000/api/inventory/${selectedMedicine}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ discount })
+      });
 
-    toast({
-      title: "Success",
-      description: "Discount applied successfully",
-    })
-  }
+      if (!res.ok) throw new Error("Failed to update discount");
+
+      const updated = await res.json();
+
+      setMedicines(medicines.map(m =>
+        m.id === selectedMedicine
+          ? { ...m, discount, discountPrice: m.price - discount }
+          : m
+      ));
+
+      toast({
+        title: "Success",
+        description: "Discount applied successfully",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update discount in backend",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -123,7 +147,7 @@ export default function Discounts() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Select onValueChange={(value) => setSelectedMedicine(Number(value))}>
+              <Select onValueChange={(value) => setSelectedMedicine(value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Medicine" />
                 </SelectTrigger>

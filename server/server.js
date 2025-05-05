@@ -81,14 +81,18 @@ app.post("/api/inventory", async (req, res) => {
 
 app.put("/api/inventory/:id", async (req, res) => {
   try {
-    const { quantity } = req.body;
-    if (quantity === undefined) {
-      return res.status(400).json({ error: "Quantity is required" });
+    const updateFields = {};
+
+    if (req.body.quantity !== undefined) updateFields.quantity = req.body.quantity;
+    if (req.body.discount !== undefined) updateFields.discount = req.body.discount;
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ error: "No valid fields provided for update" });
     }
 
     const updatedMedicine = await Medicine.findByIdAndUpdate(
       req.params.id,
-      { $set: { quantity } },
+      { $set: updateFields },
       { new: true }
     );
 
