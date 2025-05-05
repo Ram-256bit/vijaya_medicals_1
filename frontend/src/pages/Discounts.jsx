@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -12,52 +12,54 @@ import {
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 
-// Mock data for medicines
-const mockMedicines = [
-  {
-    id: 1,
-    name: "Panadol",
-    quantity: 20,
-    batchId: "875432",
-    expireDate: "02/02/2025",
-    price: 1200,
-    discountPrice: 1000
-  },
-  {
-    id: 2,
-    name: "Citizen",
-    quantity: 200,
-    batchId: "875547",
-    expireDate: "02/02/2025",
-    price: 995,
-    discountPrice: 780
-  }
-]
-
 export default function Discounts() {
-  const [medicines, setMedicines] = useState(mockMedicines)
+  const [medicines, setMedicines] = useState([])
   const [selectedMedicine, setSelectedMedicine] = useState(null)
   const [discountType, setDiscountType] = useState("percentage")
   const [discountAmount, setDiscountAmount] = useState("")
 
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/inventory")
+        if (!res.ok) throw new Error("Failed to fetch medicines")
+        const data = await res.json()
+
+        const withDiscount = data.map(med => ({
+          id: med._id,
+          name: med.name,
+          price: med.price,
+          quantity: med.quantity,
+          expireDate: med.expireDate,
+          batchId: med._id.slice(-6), // Simulate batch ID
+          discountPrice: med.price // No discount by default
+        }))
+
+        setMedicines(withDiscount)
+      } catch (err) {
+        console.error("Error fetching medicines:", err)
+      }
+    }
+
+    fetchMedicines()
+  }, [])
+
   const handleApplyDiscount = () => {
     if (!selectedMedicine) {
-      toast({
+      return toast({
         title: "Error",
         description: "Please select a medicine first",
         variant: "destructive",
       })
-      return
     }
 
     const amount = parseFloat(discountAmount)
     if (isNaN(amount) || amount <= 0) {
-      toast({
+      return toast({
         title: "Error",
         description: "Please enter a valid discount amount",
         variant: "destructive",
       })
-      return
     }
 
     const medicine = medicines.find(m => m.id === selectedMedicine)
@@ -66,22 +68,20 @@ export default function Discounts() {
     let newDiscountPrice
     if (discountType === "percentage") {
       if (amount > 100) {
-        toast({
+        return toast({
           title: "Error",
           description: "Percentage discount cannot exceed 100%",
           variant: "destructive",
         })
-        return
       }
       newDiscountPrice = medicine.price * (1 - amount / 100)
     } else {
       if (amount >= medicine.price) {
-        toast({
+        return toast({
           title: "Error",
           description: "Fixed discount cannot exceed medicine price",
           variant: "destructive",
         })
-        return
       }
       newDiscountPrice = medicine.price - amount
     }
