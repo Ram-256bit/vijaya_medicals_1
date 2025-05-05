@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -9,97 +9,28 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Badge } from "@/components/ui/badge"
 import { Search, FileText, Printer, Calendar, User, Phone } from "lucide-react"
 
-// Sample orders data - in a real app, this would come from an API
-const sampleOrders = [
-  {
-    id: 1001,
-    customer: {
-      name: "John Doe",
-      phone: "123-456-7890",
-    },
-    items: [
-      { id: 1, name: "Panadol", price: 120, quantity: 2, total: 240 },
-      { id: 3, name: "Citazin", price: 180, quantity: 1, total: 180 },
-    ],
-    subtotal: 420,
-    tax: 42,
-    total: 462,
-    date: "2023-05-15T14:30:00Z",
-    status: "completed",
-  },
-  {
-    id: 1002,
-    customer: {
-      name: "Jane Smith",
-      phone: "987-654-3210",
-    },
-    items: [
-      { id: 2, name: "Amoxicillin", price: 250, quantity: 1, total: 250 },
-      { id: 5, name: "Metformin", price: 220, quantity: 3, total: 660 },
-    ],
-    subtotal: 910,
-    tax: 91,
-    total: 1001,
-    date: "2023-05-16T10:15:00Z",
-    status: "completed",
-  },
-  {
-    id: 1003,
-    customer: {
-      name: "Robert Johnson",
-      phone: "555-123-4567",
-    },
-    items: [
-      { id: 4, name: "Omeprazole", price: 300, quantity: 1, total: 300 },
-      { id: 6, name: "Diamicrozole", price: 450, quantity: 2, total: 900 },
-      { id: 8, name: "Chloroperi Hybanate", price: 520, quantity: 1, total: 520 },
-    ],
-    subtotal: 1720,
-    tax: 172,
-    total: 1892,
-    date: "2023-05-16T16:45:00Z",
-    status: "completed",
-  },
-  {
-    id: 1004,
-    customer: {
-      name: "Sarah Williams",
-      phone: "333-888-9999",
-    },
-    items: [{ id: 7, name: "Omithrazole", price: 280, quantity: 2, total: 560 }],
-    subtotal: 560,
-    tax: 56,
-    total: 616,
-    date: "2023-05-17T09:20:00Z",
-    status: "completed",
-  },
-  {
-    id: 1005,
-    customer: {
-      name: "Walk-in Customer",
-      phone: "N/A",
-    },
-    items: [
-      { id: 1, name: "Panadol", price: 120, quantity: 5, total: 600 },
-      { id: 3, name: "Citazin", price: 180, quantity: 2, total: 360 },
-      { id: 5, name: "Metformin", price: 220, quantity: 1, total: 220 },
-    ],
-    subtotal: 1180,
-    tax: 118,
-    total: 1298,
-    date: "2023-05-17T14:10:00Z",
-    status: "completed",
-  },
-]
-
 export default function Orders() {
-  const [orders] = useState(sampleOrders)
+  const [orders, setOrders] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
   const [dateFilter, setDateFilter] = useState("")
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
-  // Format date function (since date-fns might not be available)
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/orders")
+        if (!res.ok) throw new Error("Failed to fetch orders")
+        const data = await res.json()
+        setOrders(data)
+      } catch (err) {
+        console.error("Error fetching orders:", err)
+      }
+    }
+
+    fetchOrders()
+  }, [])
+
   const formatDate = (dateString, format) => {
     const date = new Date(dateString)
     if (format === "yyyy-MM-dd") {
@@ -117,7 +48,8 @@ export default function Orders() {
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) || order.id.toString().includes(searchTerm)
+      order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order._id?.toString().includes(searchTerm)
 
     const matchesDate = dateFilter ? formatDate(order.date, "yyyy-MM-dd") === dateFilter : true
 
@@ -181,8 +113,8 @@ export default function Orders() {
                   </TableRow>
                 ) : (
                   filteredOrders.map((order) => (
-                    <TableRow key={order.id} className="border-gray-700">
-                      <TableCell className="font-medium text-white">#{order.id}</TableCell>
+                    <TableRow key={order._id} className="border-gray-700">
+                      <TableCell className="font-medium text-white">#{order._id}</TableCell>
                       <TableCell className="text-gray-300">{order.customer.name}</TableCell>
                       <TableCell className="text-gray-300">{formatDate(order.date)}</TableCell>
                       <TableCell className="text-right text-gray-300">{order.items.length}</TableCell>
@@ -214,7 +146,7 @@ export default function Orders() {
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="bg-gray-800 text-white border border-gray-700 max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">Order Details - #{selectedOrder?.id}</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-white">Order Details - #{selectedOrder?._id}</DialogTitle>
           </DialogHeader>
 
           {selectedOrder && (
@@ -260,7 +192,7 @@ export default function Orders() {
                   </TableHeader>
                   <TableBody>
                     {selectedOrder.items.map((item) => (
-                      <TableRow key={item.id} className="border-gray-700">
+                      <TableRow key={item._id} className="border-gray-700">
                         <TableCell className="text-white">{item.name}</TableCell>
                         <TableCell className="text-right text-gray-300">₹{item.price.toFixed(2)}</TableCell>
                         <TableCell className="text-right text-gray-300">{item.quantity}</TableCell>
