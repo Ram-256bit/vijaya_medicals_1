@@ -54,7 +54,7 @@ function App() {
                 element={auth ? <ExpiredMedicines /> : <Navigate to="/login" replace />}
               />
               <Route path="/discounts" element={auth ? <Discounts /> : <Navigate to="/login" replace />} />
-              <Route path="/out-of-stock" element={auth ? <OutOfStock /> : <Navigate to="/login" replace />} />
+              {/* <Route path="/out-of-stock" element={auth ? <OutOfStock /> : <Navigate to="/login" replace />} /> */}
               <Route path="/settings" element={auth ? <Settings /> : <Navigate to="/login" replace />} />
               <Route path="/inventory" element={auth ? <Inventory /> : <Navigate to="/login" replace />} />
               {/* <Route path="/notifications" element={auth ? <Notifications /> : <Navigate to="/login" replace />} /> */}

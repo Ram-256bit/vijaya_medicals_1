@@ -83,14 +83,14 @@ export function Sidebar({ isOpen, setIsOpen, setAuth }) {
                 <Package className="h-5 w-5" />
                 <span>Inventory</span>
               </Link>
-              <Link
-                to="/out-of-stock"
-                className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                <PackageMinus className="h-5 w-5" />
-                <span>Out Of Stock</span>
-              </Link>
+              {/* <Link */}
+              {/*   to="/out-of-stock" */}
+              {/*   className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors" */}
+              {/*   onClick={() => setIsOpen(false)} */}
+              {/* > */}
+              {/*   <PackageMinus className="h-5 w-5" /> */}
+              {/*   <span>Out Of Stock</span> */}
+              {/* </Link> */}
               <Link
                 to="/discounts"
                 className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"

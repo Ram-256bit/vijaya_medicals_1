@@ -90,8 +90,8 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case "outOfStock":
-        return <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+      // case "outOfStock":
+      //   return <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
       case "expired":
         return <div className="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
       case "discount":
@@ -242,14 +242,14 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gray-800 border border-gray-700 shadow-md">
-          <CardHeader className="pb-2 border-b border-gray-700">
-            <CardTitle className="text-sm font-medium text-green-400">Out of Stock</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="text-4xl font-bold text-white">890</div>
-          </CardContent>
-        </Card>
+        {/* <Card className="bg-gray-800 border border-gray-700 shadow-md"> */}
+        {/*   <CardHeader className="pb-2 border-b border-gray-700"> */}
+        {/*     <CardTitle className="text-sm font-medium text-green-400">Out of Stock</CardTitle> */}
+        {/*   </CardHeader> */}
+        {/*   <CardContent className="pt-4"> */}
+        {/*     <div className="text-4xl font-bold text-white">890</div> */}
+        {/*   </CardContent> */}
+        {/* </Card> */}
 
         <Card className="bg-gray-800 border border-gray-700 shadow-md">
           <CardHeader className="pb-2 border-b border-gray-700">
@@ -301,30 +301,30 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border border-gray-700 shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-gray-700">
-            <CardTitle className="text-white">Out Of Stock</CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1 bg-gray-700 text-white border-gray-600 hover:bg-gray-600"
-              onClick={() => navigate("/out-of-stock")}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Pre-order
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            <div className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600">
-              <p>Name: amoxilin</p>
-              <p>Batch: 78690</p>
-            </div>
-            <div className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600">
-              <p>Name: demo1</p>
-              <p>Batch: 78690</p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* <Card className="bg-gray-800 border border-gray-700 shadow-md"> */}
+        {/*   <CardHeader className="flex flex-row items-center justify-between border-b border-gray-700"> */}
+        {/*     <CardTitle className="text-white">Out Of Stock</CardTitle> */}
+        {/*     <Button */}
+        {/*       variant="outline" */}
+        {/*       size="sm" */}
+        {/*       className="flex items-center gap-1 bg-gray-700 text-white border-gray-600 hover:bg-gray-600" */}
+        {/*       onClick={() => navigate("/out-of-stock")} */}
+        {/*     > */}
+        {/*       <ShoppingCart className="h-4 w-4" /> */}
+        {/*       Pre-order */}
+        {/*     </Button> */}
+        {/*   </CardHeader> */}
+        {/*   <CardContent className="space-y-4 pt-4"> */}
+        {/*     <div className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600"> */}
+        {/*       <p>Name: amoxilin</p> */}
+        {/*       <p>Batch: 78690</p> */}
+        {/*     </div> */}
+        {/*     <div className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600"> */}
+        {/*       <p>Name: demo1</p> */}
+        {/*       <p>Batch: 78690</p> */}
+        {/*     </div> */}
+        {/*   </CardContent> */}
+        {/* </Card> */}
       </div>
     </div>
   )
