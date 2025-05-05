@@ -1,56 +1,45 @@
 "use client"
 
-import { useState } from "react"
-import { Bell, Search, Menu, Check, User, Settings, LogOut, ShoppingCart } from "lucide-react"
+import { useEffect, useState } from "react"
+import {
+  Bell, Search, Menu, Check, User, Settings, LogOut,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { logout } from "@/utils/auth"
+import axios from "axios"
 
-// Sample notification data - in a real app, this would come from an API or context
 const initialNotifications = [
   {
     id: 1,
-    type: "outOfStock",
-    title: "Amoxicillin is out of stock",
-    description: "Amoxicillin 500mg is now out of stock. Please reorder soon.",
-    time: "2 hours ago",
-    read: false,
-    link: "/out-of-stock",
-  },
-  {
-    id: 2,
     type: "expired",
     title: "Medicines Expiring Soon",
-    description: "5 medicines will expire within the next 30 days.",
+    description: "Some medicines will expire within the next 30 days.",
     time: "1 day ago",
     read: false,
     link: "/expired-medicines",
   },
   {
-    id: 3,
+    id: 2,
     type: "discount",
     title: "New Discount Available",
-    description: "New discount available for Panadol. Check it out!",
+    description: "Check the latest discounted items.",
     time: "2 days ago",
     read: true,
     link: "/discounts",
   },
   {
-    id: 4,
+    id: 3,
     type: "preOrder",
     title: "Low Stock Alert",
-    description: "Ibuprofen is running low. Consider pre-ordering.",
+    description: "Some medicines are running low. Reorder now.",
     time: "3 hours ago",
     read: false,
     link: "/out-of-stock",
@@ -58,22 +47,33 @@ const initialNotifications = [
 ]
 
 export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
-  console.log("Dashboard is rendering")
   const [notifications, setNotifications] = useState(initialNotifications)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [dashboardData, setDashboardData] = useState({
+    totalDiscounts: 0,
+    totalExpired: 0,
+    totalRefunded: 0,
+    expiringMedicines: [],
+  })
+
   const navigate = useNavigate()
-
-  // In a real app, this would come from a user context or API
   const userName = "John Doe"
-
   const unreadCount = notifications.filter((n) => !n.read).length
 
-  const handleNotificationClick = (notification) => {
-    // Mark as read
-    setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n)))
+  useEffect(() => {
+    axios.get("http://localhost:5000/api/dashboard")
+      .then((res) => {
+        console.log("Dashboard API response:", res.data) // ← ADD THIS
+        setDashboardData(res.data)
+      })
+      .catch((err) => console.error("Dashboard fetch error:", err))
+  }, [])
 
-    // Navigate to the relevant page
+  const handleNotificationClick = (notification) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
+    )
     navigate(notification.link)
     setIsDropdownOpen(false)
   }
@@ -90,8 +90,6 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      // case "outOfStock":
-      //   return <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
       case "expired":
         return <div className="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
       case "discount":
@@ -207,23 +205,11 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
                 <div className="text-sm text-gray-400">{userName}</div>
               </div>
               <DropdownMenuSeparator className="bg-gray-800" />
-              <DropdownMenuItem
-                className="p-3 cursor-pointer hover:bg-gray-800 flex items-center gap-2"
-                onClick={() => {
-                  navigate("/settings")
-                  setIsProfileOpen(false)
-                }}
-              >
+              <DropdownMenuItem className="p-3 cursor-pointer hover:bg-gray-800 flex items-center gap-2" onClick={() => navigate("/settings")}>
                 <User className="h-4 w-4 text-gray-400" />
                 <span>My Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="p-3 cursor-pointer hover:bg-gray-800 flex items-center gap-2"
-                onClick={() => {
-                  navigate("/settings")
-                  setIsProfileOpen(false)
-                }}
-              >
+              <DropdownMenuItem className="p-3 cursor-pointer hover:bg-gray-800 flex items-center gap-2" onClick={() => navigate("/settings")}>
                 <Settings className="h-4 w-4 text-gray-400" />
                 <span>Settings</span>
               </DropdownMenuItem>
@@ -247,7 +233,7 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
             <CardTitle className="text-sm font-medium text-yellow-400">Discounts</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="text-4xl font-bold text-white">1,234</div>
+            <div className="text-4xl font-bold text-white">{dashboardData.totalDiscounts}</div>
           </CardContent>
         </Card>
 
@@ -256,7 +242,7 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
             <CardTitle className="text-sm font-medium text-blue-400">Expired!</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="text-4xl font-bold text-white">567</div>
+            <div className="text-4xl font-bold text-white">{dashboardData.totalExpired}</div>
           </CardContent>
         </Card>
 
@@ -265,35 +251,31 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
             <CardTitle className="text-sm font-medium text-red-400">Refunded</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="text-4xl font-bold text-white">123</div>
+            <div className="text-4xl font-bold text-white">{dashboardData.totalRefunded}</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Notification Panels */}
+      {/* Expiring Soon Panel */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="bg-gray-800 border border-gray-700 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between border-b border-gray-700">
             <CardTitle className="text-white">Expire Date Notification</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
-            <div className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600">
-              <p>Name: panadol</p>
-              <p>Batch: 78678</p>
-            </div>
-            <div className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600">
-              <p>Name: citizen</p>
-              <p>Batch: 78679</p>
-            </div>
-            <div className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600">
-              <p>Name: citizen</p>
-              <p>Batch: 78679</p>
-            </div>
+            {dashboardData?.expiringMedicines?.length > 0 ? (
+              dashboardData.expiringMedicines.map((medicine) => (
+                <div key={medicine._id} className="bg-gray-700 text-white p-4 rounded-lg border border-gray-600">
+                  <p>Name: {medicine.name}</p>
+                  <p>Batch: {medicine.batchNumber}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400">No expiring medicines found.</p>
+            )}
           </CardContent>
         </Card>
-
       </div>
     </div>
   )
 }
-
