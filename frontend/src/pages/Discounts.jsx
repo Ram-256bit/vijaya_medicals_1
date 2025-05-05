@@ -86,8 +86,8 @@ export default function Discounts() {
       newDiscountPrice = medicine.price - amount
     }
 
-    setMedicines(medicines.map(m => 
-      m.id === selectedMedicine 
+    setMedicines(medicines.map(m =>
+      m.id === selectedMedicine
         ? { ...m, discountPrice: Math.round(newDiscountPrice) }
         : m
     ))
