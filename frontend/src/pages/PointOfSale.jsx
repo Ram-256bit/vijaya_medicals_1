@@ -101,47 +101,70 @@ export default function PointOfSale() {
     return subtotal + (subtotal * tax) / 100
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       toast({
         title: "Empty cart",
         description: "Please add items to the bill before checkout.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    // In a real app, you would save the order to a database
     const order = {
-      id: Date.now(),
       customer: {
         name: customerName || "Walk-in Customer",
         phone: customerPhone || "N/A",
       },
-      items: cart,
+      items: cart.map(item => ({
+        _id: item._id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        total: item.total,
+      })),
       subtotal: calculateSubtotal(),
       tax: (calculateSubtotal() * tax) / 100,
       total: calculateTotal(),
       date: new Date().toISOString(),
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(order),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save order");
+      }
+
+      const savedOrder = await response.json();
+      console.log("Order saved:", savedOrder);
+
+      toast({
+        title: "Order completed",
+        description: `Order has been processed successfully.`,
+      });
+
+      // Clear the cart and customer info
+      setCart([]);
+      setCustomerName("");
+      setCustomerPhone("");
+      setTax(0);
+      navigate("/orders");
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      toast({
+        title: "Checkout failed",
+        description: "Could not save the order. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    console.log("Order placed:", order)
-
-    toast({
-      title: "Order completed",
-      description: `Order #${order.id} has been processed successfully.`,
-    })
-
-    // Clear the cart and customer info
-    setCart([])
-    setCustomerName("")
-    setCustomerPhone("")
-    setTax(0)
-
-    // Navigate to orders page
-    navigate("/orders")
-  }
-
+  };
   const handlePrint = () => {
     window.print()
   }

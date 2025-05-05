@@ -34,6 +34,7 @@ const orderSchema = new mongoose.Schema({
   },
   items: [
     {
+      _id: String,
       name: String,
       price: Number,
       quantity: Number,
@@ -118,16 +119,16 @@ app.get("/api/inventory/expired", async (req, res) => {
 // --- Orders ---
 app.post("/api/orders", async (req, res) => {
   try {
-    const order = new Order(req.body);
+    const orderData = req.body;
+    const order = new Order(orderData);
     await order.save();
     res.status(201).json(order);
   } catch (err) {
-    console.error(err);
+    console.error("Failed to save order:", err);
     res.status(500).json({ error: "Failed to create order" });
   }
 });
 
-// (Optional) Get all orders
 app.get("/api/orders", async (req, res) => {
   try {
     const orders = await Order.find().sort({ date: -1 });
