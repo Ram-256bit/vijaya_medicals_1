@@ -70,8 +70,9 @@ export default function ExpiredMedicines() {
               {filteredMedicines.map((medicine) => (
                 <TableRow key={medicine._id}>
                   <TableCell>{medicine.name}</TableCell>
-                  <TableCell>{medicine.batchId}</TableCell>
-                  <TableCell>{medicine.expiryDate}</TableCell>
+                  {/* <TableCell>{medicine.batchId}</TableCell> */}
+                  <TableCell>{medicine.expireDate}</TableCell>
+                  <TableCell>{medicine.quantity}</TableCell>
                   <TableCell>{medicine.quantity}</TableCell>
                 </TableRow>
               ))}
