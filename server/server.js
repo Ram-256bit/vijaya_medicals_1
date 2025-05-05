@@ -21,6 +21,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 const medicineSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
+  discount: { type: Number, required: false },
   image: { type: String },
   quantity: { type: Number, required: true },
   expireDate: { type: String, required: true } // store as YYYY-MM-DD
@@ -62,16 +63,19 @@ app.get("/api/inventory", async (req, res) => {
 
 app.post("/api/inventory", async (req, res) => {
   try {
-    const { name, price, image, quantity, expireDate } = req.body;
+    const { name, price, image, discount, quantity, expireDate } = req.body;
+    // if (!discount) {
+    //   discount = 0;
+    // }
     if (!name || !price || !quantity || !expireDate) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const newMedicine = new Medicine({ name, price, image, quantity, expireDate });
+    const newMedicine = new Medicine({ name, price, discount, image, quantity, expireDate });
     await newMedicine.save();
     res.status(201).json(newMedicine);
   } catch (err) {
-    res.status(500).json({ error: "Failed to add medicine" });
+    res.status(500).json({ error: `Failed to add medicine\n${err}` });
   }
 });
 
