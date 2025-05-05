@@ -25,16 +25,31 @@ export default function Discounts() {
         if (!res.ok) throw new Error("Failed to fetch medicines")
         const data = await res.json()
 
-        const withDiscount = data.map(med => ({
-          id: med._id,
-          name: med.name,
-          price: med.price,
-          quantity: med.quantity,
-          expireDate: med.expireDate,
-          batchId: med._id.slice(-6), // Simulate batch ID
-          discountPrice: med.price // No discount by default
-        }))
-
+        const withDiscount = data.map(med => {
+          const discount = med.discount ?? 0
+          return {
+            id: med._id,
+            name: med.name,
+            price: med.price,
+            quantity: med.quantity,
+            expireDate: med.expireDate,
+            discount, // use actual discount if present, else 0
+            batchId: med._id.slice(-6),
+            discountPrice: med.price - discount
+          }
+        })
+        // const withDiscount = data.map(med => (
+        //   {
+        //     id: med._id,
+        //     name: med.name,
+        //     price: med.price,
+        //     quantity: med.quantity,
+        //     expireDate: med.expireDate,
+        //     discount: discount,
+        //     batchId: med._id.slice(-6), // Simulate batch ID
+        //     discountPrice: med.price // No discount by default
+        //   }))
+        //
         setMedicines(withDiscount)
       } catch (err) {
         console.error("Error fetching medicines:", err)
