@@ -246,14 +246,14 @@ export default function Dashboard({ sidebarOpen, setSidebarOpen, setAuth }) {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border border-gray-700 shadow-md">
-          <CardHeader className="pb-2 border-b border-gray-700">
-            <CardTitle className="text-sm font-medium text-red-400">Refunded</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="text-4xl font-bold text-white">{dashboardData.totalRefunded}</div>
-          </CardContent>
-        </Card>
+        {/* <Card className="bg-gray-800 border border-gray-700 shadow-md"> */}
+        {/*   <CardHeader className="pb-2 border-b border-gray-700"> */}
+        {/*     <CardTitle className="text-sm font-medium text-red-400">Refunded</CardTitle> */}
+        {/*   </CardHeader> */}
+        {/*   <CardContent className="pt-4"> */}
+        {/*     <div className="text-4xl font-bold text-white">{dashboardData.totalRefunded}</div> */}
+        {/*   </CardContent> */}
+        {/* </Card> */}
       </div>
 
       {/* Expiring Soon Panel */}
