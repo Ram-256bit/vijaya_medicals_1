@@ -192,11 +192,11 @@ export default function PointOfSale() {
                 {filteredMedicines.map((medicine) => (
                   <Card key={medicine.id} className="bg-gray-700 border border-gray-600 overflow-hidden">
                     <div className="p-2 flex justify-center bg-gray-600">
-                      <img
-                        src={medicine.image || "/placeholder.svg"}
-                        alt={medicine.name}
-                        className="h-24 w-24 object-cover"
-                      />
+                      {/*   <img */}
+                      {/*     src={medicine.image || "/placeholder.svg"} */}
+                      {/*     alt={medicine.name} */}
+                      {/*     className="h-24 w-24 object-cover" */}
+                      {/*   /> */}
                     </div>
                     <CardContent className="p-3">
                       <h3 className="font-medium text-white text-center mb-1">{medicine.name}</h3>
